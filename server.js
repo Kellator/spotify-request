@@ -26,17 +26,22 @@ app.get('/search/:name', function(req, res) {
     var searchReq = getFromApi('search', {
         q: req.params.name,
         limit: 1,
-        type: 'artist'
+        type: 'artist',
     });
+
 
     searchReq.on('end', function(item) {
         var artist = item.artists.items[0];
+        var related = artist.id;
         res.json(artist);
+        console.log(related);
+
     });
 
     searchReq.on('error', function(code) {
         res.sendStatus(code);
     });
 });
+//        getFromApi(related, artist);
 
 app.listen(process.env.PORT || 8080);
