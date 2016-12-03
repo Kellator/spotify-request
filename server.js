@@ -33,15 +33,25 @@ app.get('/search/:name', function(req, res) {
     searchReq.on('end', function(item) {
         var artist = item.artists.items[0];
         var related = artist.id;
-        res.json(artist);
-        console.log(related);
-
+        var relatedSearch = getFromApi('artists/' + related + '/related-artists');
+        relatedSearch.on('end', function(data) {
+            artist.related = data.artists;
+            //write a fx to see how many total (asyn parallel - onReadDir Comp for each fx)
+            res.json(artist);
+        });
     });
-
     searchReq.on('error', function(code) {
         res.sendStatus(code);
     });
 });
-//        getFromApi(related, artist);
+var topTracks = function(artist, callback) {
+    console.log(artist);
+    var artistTracks = getFromApi('artists/' + artist.id + '/top-tracks');
+        artistTracks.on('end', function(data) {
+            artist.tracks = data.tracks;
+            callback();
+        })  
+}
+
 
 app.listen(process.env.PORT || 8080);
