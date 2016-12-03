@@ -36,7 +36,11 @@ app.get('/search/:name', function(req, res) {
         var relatedSearch = getFromApi('artists/' + related + '/related-artists');
         relatedSearch.on('end', function(data) {
             artist.related = data.artists;
-            //write a fx to see how many total (asyn parallel - onReadDir Comp for each fx)
+            var totalArtists = (data.artists).length;
+            console.log(data.artists[0]);
+            console.log(totalArtists);
+            var completed = 0;
+            //some sort of forEach function - for each related artists, run topTracks?
             res.json(artist);
         });
     });
