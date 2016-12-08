@@ -19,7 +19,7 @@ var getFromApi = function(endpoint, args) {
 
 //when user makes request to /search/:name - make a request to spotify/search endpoint 
 var app = express();
-var app = express();
+
 app.use(express.static('public'));
 
 app.get('/search/:name', function(req, res) {
@@ -37,11 +37,21 @@ app.get('/search/:name', function(req, res) {
         relatedSearch.on('end', function(data) {
             artist.related = data.artists;
             var totalArtists = (data.artists).length;
-            console.log(data.artists[0]);
-            console.log(totalArtists);
+            // console.log(data.artists[0]);
+            // console.log(totalArtists);
             var completed = 0;
-            //some sort of forEach function - for each related artists, run topTracks?
-            res.json(artist);
+            var checkComplete = function() {
+                if (completed === totalArtists) {
+                    res.json(artist);
+                }
+            }; 
+            artist.related.forEach(function(relatedArtists) {
+                topTracks(relatedArtists, function(){
+                    completed++;
+                    checkComplete();
+                });
+            });
+            // res.json(artist);
         });
     });
     searchReq.on('error', function(code) {
@@ -49,8 +59,9 @@ app.get('/search/:name', function(req, res) {
     });
 });
 var topTracks = function(artist, callback) {
-    console.log(artist);
-    var artistTracks = getFromApi('artists/' + artist.id + '/top-tracks');
+    console.log(artist.id);
+    var artistTracks = getFromApi('artists/' + artist.id + '/top-tracks?country=US');
+    console.log(artistTracks);
         artistTracks.on('end', function(data) {
             artist.tracks = data.tracks;
             callback();
@@ -59,3 +70,4 @@ var topTracks = function(artist, callback) {
 
 
 app.listen(process.env.PORT || 8080);
+
